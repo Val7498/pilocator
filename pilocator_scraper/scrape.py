@@ -3,8 +3,7 @@ import bs4 as bs
 import re
 import redis
 import os
-#from dotenv import load_dotenv
-#load_dotenv("../.env")
+
 #Obtain Environment Variables
 dbHost = os.getenv("REDIS_HOST")
 dbPort = os.getenv("REDIS_PORT")

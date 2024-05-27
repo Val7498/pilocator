@@ -8,9 +8,7 @@ from email.message import EmailMessage
 from urllib.parse import parse_qs
 from waitress import serve
 
-#from dotenv import load_dotenv
 #Obtain Environment Variables
-#load_dotenv()
 domainName = os.getenv("FQDN")
 hasHttps = os.getenv("HTTPS")
 appName = "C380 Pilocator"
