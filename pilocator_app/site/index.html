@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage - Pilocator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .footer {
+      background-color: #0f3c6d;
+      color: white;
+      padding: 20px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/">Pilocator</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/subscribe">Get Notified</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <h2>Statistics</h2>
+    <canvas id="myChart" width="400" height="200"></canvas>
+
+    <h2 class="mt-4">Table</h2>
+    <div id="table-container"></div>
+  </div>
+
+  <footer class="footer mt-5">
+    <div class="container">
+      <p>COMP 380 Project<br>Val7498<br></p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function createTable(jsonArray) {
+      const tableContainer = document.getElementById('table-container');
+      const table = document.createElement('table');
+      table.className = 'table';
+
+      // Create table header
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      Object.keys(jsonArray[0]).forEach(key => {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Create table body
+      const tbody = document.createElement('tbody');
+      jsonArray.forEach(obj => {
+        const row = document.createElement('tr');
+        Object.values(obj).forEach(value => {
+          const td = document.createElement('td');
+          td.textContent = value;
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+
+      tableContainer.appendChild(table);
+    }
+    
+    // Chart.js data
+    var ctx = document.getElementById('myChart').getContext('2d');
+    fetch('/getData')
+      .then(response => response.json())
+      .then(data => {
+        createTable(data["data"]);
+        var myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: ['Adafruit', 'Chicago Dist', 'DigiKey US', 'Newark', 'PishopUS'],
+            datasets: [{
+              label: 'Current stock',
+              data: data['summary'],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h1>Sign up page</h1>
+        <form id="signup">
+            <div class="mb-3">
+                <label for="input1" class="form-label">Email*</label>
+                <input type="text" class="form-control" id="input1" name="emailaddress">
+                <div id="emailError" class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+            <div class="mb-3">
+                <label for="input2" class="form-label">Webhook Address (Optional)</label>
+                <input type="text" class="form-control" id="input2" name="webhookaddress">
+                <div id="webhookError" class="invalid-feedback">Please enter a valid webhook address.</div>
+
+            </div>
+            <div class="mb-3">
+                <label for="choice" class="form-label">How would you like to notified?</label><br>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="choice" id="choice1" value="email" checked>
+                    <label class="form-check-label" for="email">
+                        email
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="choice" id="choice2" value="webhook">
+                    <label class="form-check-label" for="webhook">
+                        webhook
+                    </label>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="selection" class="form-label">Select SKUs:</label>
+                <select multiple class="form-select" id="selection" name="selection[]">
+                    <option value="PIZERO">Raspberry Pi Zero</option>
+                    <option value="PIZERO2">Raspberry Pi Zero 2</option>
+                    <option value="PI4">Raspberry Pi 4</option>
+                    <option value="PI5">Raspberry Pi 5</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <hr class="my-4">
+        <h4>Unsubscribe from Notifications</h4>
+        <form id="unsub">
+            <div class="mb-3">
+                <label for="inputEmail" class="form-label">Email*</label>
+                <input type="email" class="form-control" id="inputEmail" name="email" required>
+                <div id="emailError" class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Unsubscribe</button>
+        </form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.getElementById('signup').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const emailInput = document.getElementById('input1');
+            const emailError = document.getElementById('emailError');
+            const email = emailInput.value.trim();
+            // Check if the email is not empty and is a valid email address
+            if (email === '' || !validateEmail(email)) {
+                emailInput.classList.add('is-invalid');
+                emailError.style.display = 'block';
+                return;
+            } else {
+                emailInput.classList.remove('is-invalid');
+                emailError.style.display = 'none';
+            }
+            const choice = document.querySelector('input[name="choice"]:checked').value;
+            if (choice === 'webhook') {
+                const webhookInput = document.getElementById('input2');
+                const webhookError = document.getElementById('webhookError');
+                const webhook = webhookInput.value.trim();
+                // Check if the webhook address is not empty
+                if (webhook === '') {
+                    webhookInput.classList.add('is-invalid');
+                    webhookError.style.display = 'block';
+                    return;
+                } else {
+                    webhookInput.classList.remove('is-invalid');
+                    webhookError.style.display = 'none';
+                }
+            }
+            const formData = new FormData(this);
+            const jsonData = {};
+            for (const [key, value] of formData.entries()) {
+                if (jsonData[key]) {
+                    if (!Array.isArray(jsonData[key])) {
+                        jsonData[key] = [jsonData[key]];
+                    }
+                    jsonData[key].push(value);
+                } else {
+                    jsonData[key] = value;
+                }
+            }
+            fetch('/signup', {
+                method: 'POST',
+                body: JSON.stringify(jsonData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Sent! Check your email to approve');
+                        //document.getElementById('myForm').reset();
+                        window.location.href = '/';
+                    } else {
+                        alert('Form submission failed.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Form submission failed.');
+                });
+        });
+        function validateEmail(email) {
+            const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return re.test(email);
+        }
+        document.getElementById('unsub').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+            // Get the email input value
+            const emailInput = document.getElementById('inputEmail').value.trim();
+
+            // Check if the email is not empty and is a valid email address
+            if (emailInput === '' || !validateEmail(emailInput)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            // Send a POST request to the /unsubscribe endpoint with the email parameter
+            fetch('/unsubscribe?' + new URLSearchParams({ email: emailInput }), {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    response.text().then((msg) => {
+                        alert(msg)
+                        window.location.href = '/';
+                    })
+                } else {
+                    alert('Failed to send unsubscribe request.');
+                }
+            }).catch(error => {
+                console.error('Error sending unsubscribe request:', error);
+                alert('Failed to send unsubscribe request.');
+            });
+        });
+
+    </script>
+</body>
+
+</html>
