@@ -4,7 +4,7 @@ Pi stock notifier, this is a Project that i did with my course group as part of 
 Requires Docker Compose
 
 # Building and running your application
-### Generate a application password from your google account
+### Generate an application password from your google account
 This app requires a app password from google you can generate it from [here](https://myaccount.google.com/apppasswords).
 
 it should look something like ``abcd efgh ijkl mnop``, paste this into the `NOTIFICATION_PASSPHRASE` for the environment variable
